@@ -1,6 +1,8 @@
 package main
 
 import (
+	"sync"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -23,6 +25,7 @@ type ManageBlogRequestPayload struct {
 }
 
 func creatBlogPost(c *fiber.Ctx) error {
+	var mu sync.Mutex // Create a mutex
 
 	var err error
 
@@ -47,7 +50,11 @@ func creatBlogPost(c *fiber.Ctx) error {
 		})
 	}
 
-	shortid := Id + 1
+	mu.Lock()
+	defer mu.Unlock()
+	Id++
+
+	shortid := Id
 
 	if err != nil {
 		return c.JSON(response{
