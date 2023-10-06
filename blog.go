@@ -14,12 +14,12 @@ type response struct {
 }
 
 type CreateBlogRequestPayload struct {
-	Blog   string
-	Author string
+	Blog   string `json:"blog"`
+	Author string `json:"author"`
 }
 
 type ManageBlogRequestPayload struct {
-	BlogId int
+	BlogId int `json:"blogId"`
 }
 
 func creatBlogPost(c *fiber.Ctx) error {
