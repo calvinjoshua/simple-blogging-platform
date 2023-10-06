@@ -12,11 +12,11 @@ func main() {
 
 	app.Post("/create-blog-post", creatBlogPost)
 
-	app.Post("/retrive-blog-post", retriveBlogPost)
+	app.Get("/retrive-blog-post", retriveBlogPost)
 
-	app.Post("/retrive-all-blog-post", retriveAllBlogs)
+	app.Get("/retrive-all-blog-post", retriveAllBlogs)
 
-	app.Post("/remove-blog-post", deleteBlog)
+	app.Delete("/remove-blog-post", deleteBlog)
 
 	log.Fatal(app.Listen(":3000"))
 }

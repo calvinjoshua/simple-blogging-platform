@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+//for simplicity i have managed the Id in memory, for fault tolerance Id will stored in persistent state
 var Id int
 
 type response struct {
@@ -31,7 +32,7 @@ func creatBlogPost(c *fiber.Ctx) error {
 
 	payloadHolder := CreateBlogRequestPayload{}
 
-	err = c.BodyParser(payloadHolder)
+	err = c.BodyParser(&payloadHolder)
 	if err != nil {
 		return c.JSON(response{
 			Status:  400,
@@ -65,16 +66,16 @@ func creatBlogPost(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err = insertBlogData(shortid, payloadHolder.Blog, payloadHolder.Author)
+	// _, err = insertBlogData(shortid, payloadHolder.Blog, payloadHolder.Author)
 
-	if err != nil {
-		return c.JSON(response{
-			Status:  500,
-			Message: "Something went wrong, please try after sometime!",
-			Data:    nil,
-			Error:   err.Error(),
-		})
-	}
+	// if err != nil {
+	// 	return c.JSON(response{
+	// 		Status:  500,
+	// 		Message: "Something went wrong, please try after sometime!",
+	// 		Data:    nil,
+	// 		Error:   err.Error(),
+	// 	})
+	// }
 
 	return c.JSON(response{
 		Status:  200,
@@ -92,7 +93,7 @@ func retriveBlogPost(c *fiber.Ctx) error {
 
 	var blog interface{}
 
-	err = c.BodyParser(payload)
+	err = c.BodyParser(&payload)
 	if err != nil {
 		return c.JSON(response{
 			Status:  400,
@@ -152,7 +153,7 @@ func deleteBlog(c *fiber.Ctx) error {
 	var payload ManageBlogRequestPayload
 	var err error
 
-	err = c.BodyParser(payload)
+	err = c.BodyParser(&payload)
 	if err != nil {
 		return c.JSON(response{
 			Status:  400,
