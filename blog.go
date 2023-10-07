@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,13 +17,14 @@ type response struct {
 	Error   string
 }
 
-type CreateBlogRequestPayload struct {
-	Blog   string `json:"blog"`
-	Author string `json:"author"`
-}
+// type CreateBlogRequestPayload struct {
+
+// }
 
 type ManageBlogRequestPayload struct {
-	BlogId int `json:"blogId"`
+	BlogId int    `json:"blogId"`
+	Blog   string `json:"blog"`
+	Author string `json:"author"`
 }
 
 func creatBlogPost(c *fiber.Ctx) error {
@@ -30,7 +32,7 @@ func creatBlogPost(c *fiber.Ctx) error {
 
 	var err error
 
-	payloadHolder := CreateBlogRequestPayload{}
+	payloadHolder := ManageBlogRequestPayload{}
 
 	err = c.BodyParser(&payloadHolder)
 	if err != nil {
@@ -103,16 +105,16 @@ func retriveBlogPost(c *fiber.Ctx) error {
 		})
 	}
 
-	blog, err = retriveBlog(payload.BlogId)
+	// blog, err = retriveBlog(payload.BlogId)
 
-	if err != nil {
-		return c.JSON(response{
-			Status:  500,
-			Message: "Something went wrong, please try after sometime!",
-			Data:    nil,
-			Error:   err.Error(),
-		})
-	}
+	// if err != nil {
+	// 	return c.JSON(response{
+	// 		Status:  500,
+	// 		Message: "Something went wrong, please try after sometime!",
+	// 		Data:    nil,
+	// 		Error:   err.Error(),
+	// 	})
+	// }
 
 	return c.JSON(response{
 		Status:  200,
@@ -178,6 +180,42 @@ func deleteBlog(c *fiber.Ctx) error {
 		Status:  200,
 		Message: "Blog deleted with Id provided in Data field",
 		Data:    payload.BlogId,
+		Error:   "",
+	})
+
+}
+
+func updateBlog(c *fiber.Ctx) error {
+
+	var payload ManageBlogRequestPayload
+
+	var err error
+
+	err = c.BodyParser(&payload)
+	if err != nil {
+		return c.JSON(response{
+			Status:  400,
+			Message: "",
+			Data:    nil,
+			Error:   err.Error(),
+		})
+	}
+
+	_, err = _updateBlog(payload.BlogId, payload.Blog)
+
+	if err != nil {
+		return c.JSON(response{
+			Status:  500,
+			Message: "",
+			Data:    nil,
+			Error:   err.Error(),
+		})
+	}
+
+	return c.JSON(response{
+		Status:  200,
+		Message: "Blog updated with Id " + strconv.Itoa(payload.BlogId) + "provided",
+		Data:    payload.Blog,
 		Error:   "",
 	})
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	_ "github.com/lib/pq"
@@ -24,6 +25,29 @@ func dbConnection() (*sql.DB, error) {
 	}
 
 	return db, nil
+
+}
+
+func checkIdExist(id int) (bool, error) {
+
+	var conn *sql.DB
+	var err error
+	var res *sql.Rows
+
+	conn, err = dbConnection()
+	if err != nil {
+		return false, err
+	}
+
+	res, err = conn.Query("SELECT * FROM TABLENAME WHERE ID=$1", id)
+
+	defer res.Close()
+
+	if res.Next() {
+		return true, nil
+	}
+
+	return false, errors.New("Id does not exist")
 
 }
 
@@ -51,8 +75,19 @@ func retriveBlog(id int) (interface{}, error) {
 	var conn *sql.DB
 	var err error
 	var res *sql.Rows
+	var idValidation bool
+
+	idValidation, err = checkIdExist(id)
+
+	if !idValidation {
+		return nil, err
+
+	}
 
 	conn, err = dbConnection()
+	if err != nil {
+		return nil, err
+	}
 
 	res, err = conn.Query("SELECT * FROM TABLENAME WHERE ID= $1", id)
 
@@ -85,6 +120,9 @@ func getAllblogs() (interface{}, error) {
 	var res *sql.Rows
 
 	conn, err = dbConnection()
+	if err != nil {
+		return nil, err
+	}
 
 	res, err = conn.Query("SELECT * FROM TABLENAME")
 
@@ -110,6 +148,20 @@ func _deleteBlog(id int) error {
 	var conn *sql.DB
 	var err error
 
+	var idValidation bool
+
+	idValidation, err = checkIdExist(id)
+
+	if !idValidation {
+		return err
+
+	}
+
+	conn, err = dbConnection()
+	if err != nil {
+		return err
+	}
+
 	_, err = conn.Exec("DELETE FROM TABLENAME WHERE ID = $1", id)
 
 	if err != nil {
@@ -117,4 +169,32 @@ func _deleteBlog(id int) error {
 	}
 
 	return nil
+}
+
+func _updateBlog(id int, blog string) (bool, error) {
+
+	var conn *sql.DB
+	var err error
+	var idValidation bool
+
+	idValidation, err = checkIdExist(id)
+
+	if !idValidation {
+		return false, err
+
+	}
+
+	conn, err = dbConnection()
+	if err != nil {
+		return false, err
+	}
+
+	_, err = conn.Exec("UPDATE TABLE SET BLOG=$2 WHERE ID=$2", blog, id)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+
 }

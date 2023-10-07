@@ -18,5 +18,7 @@ func main() {
 
 	app.Delete("/remove-blog-post", deleteBlog)
 
+	app.Put("/update-blog-post", updateBlog)
+
 	log.Fatal(app.Listen(":3000"))
 }
