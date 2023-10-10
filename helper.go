@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -16,7 +17,7 @@ type blog struct {
 
 func dbConnection() (*sql.DB, error) {
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", "", 5432, "", "", "")
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", "localhost", 5432, "admin", "admin123", "mydb")
 
 	db, err := sql.Open("postgres", psqlInfo)
 
@@ -29,7 +30,6 @@ func dbConnection() (*sql.DB, error) {
 }
 
 func checkIdExist(id int) (bool, error) {
-
 	var conn *sql.DB
 	var err error
 	var res *sql.Rows
@@ -39,7 +39,7 @@ func checkIdExist(id int) (bool, error) {
 		return false, err
 	}
 
-	res, err = conn.Query("SELECT * FROM TABLENAME WHERE ID=$1", id)
+	res, err = conn.Query("SELECT * FROM blogs WHERE id=$1", id)
 
 	defer res.Close()
 
@@ -61,7 +61,9 @@ func insertBlogData(id int, blog string, author string) (bool, error) {
 
 	defer conn.Close()
 
-	_, err = conn.Exec("INSERT INTO TABLENAME(ID, BLOG,AUTHOR) VALUE ($1, $2)", id, blog, author)
+	log.Println(id, blog, author)
+
+	_, err = conn.Exec("INSERT INTO blogs(id,blog,author) VALUES ($1, $2, $3)", id, blog, author)
 
 	if err != nil {
 		return false, err
@@ -89,7 +91,7 @@ func retriveBlog(id int) (interface{}, error) {
 		return nil, err
 	}
 
-	res, err = conn.Query("SELECT * FROM TABLENAME WHERE ID= $1", id)
+	res, err = conn.Query("SELECT * FROM blogs WHERE id= $1", id)
 
 	if err != nil {
 		return nil, err
@@ -100,7 +102,7 @@ func retriveBlog(id int) (interface{}, error) {
 
 	if res.Next() {
 
-		err = res.Scan(_blog)
+		err = res.Scan(&_blog.Id, &_blog.Blog, &_blog.Author)
 
 		if err != nil {
 			return nil, err
@@ -124,14 +126,14 @@ func getAllblogs() (interface{}, error) {
 		return nil, err
 	}
 
-	res, err = conn.Query("SELECT * FROM TABLENAME")
+	res, err = conn.Query("SELECT * FROM blogs")
 
 	defer res.Close()
 
 	for res.Next() {
 
 		var temp blog
-		err = res.Scan(temp)
+		err = res.Scan(&temp.Id, &temp.Blog, &temp.Author)
 		if err != nil {
 			return nil, err
 		}
@@ -162,7 +164,7 @@ func _deleteBlog(id int) error {
 		return err
 	}
 
-	_, err = conn.Exec("DELETE FROM TABLENAME WHERE ID = $1", id)
+	_, err = conn.Exec("DELETE FROM blogs WHERE id = $1", id)
 
 	if err != nil {
 		return err
@@ -189,7 +191,7 @@ func _updateBlog(id int, blog string) (bool, error) {
 		return false, err
 	}
 
-	_, err = conn.Exec("UPDATE TABLE SET BLOG=$2 WHERE ID=$2", blog, id)
+	_, err = conn.Exec("UPDATE blogs SET blog=$1 WHERE id=$2", blog, id)
 
 	if err != nil {
 		return false, err

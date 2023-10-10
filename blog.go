@@ -68,16 +68,16 @@ func creatBlogPost(c *fiber.Ctx) error {
 		})
 	}
 
-	// _, err = insertBlogData(shortid, payloadHolder.Blog, payloadHolder.Author)
+	_, err = insertBlogData(shortid, payloadHolder.Blog, payloadHolder.Author)
 
-	// if err != nil {
-	// 	return c.JSON(response{
-	// 		Status:  500,
-	// 		Message: "Something went wrong, please try after sometime!",
-	// 		Data:    nil,
-	// 		Error:   err.Error(),
-	// 	})
-	// }
+	if err != nil {
+		return c.JSON(response{
+			Status:  500,
+			Message: "Something went wrong, please try after sometime!",
+			Data:    nil,
+			Error:   err.Error(),
+		})
+	}
 
 	return c.JSON(response{
 		Status:  200,
@@ -105,16 +105,16 @@ func retriveBlogPost(c *fiber.Ctx) error {
 		})
 	}
 
-	// blog, err = retriveBlog(payload.BlogId)
+	blog, err = retriveBlog(payload.BlogId)
 
-	// if err != nil {
-	// 	return c.JSON(response{
-	// 		Status:  500,
-	// 		Message: "Something went wrong, please try after sometime!",
-	// 		Data:    nil,
-	// 		Error:   err.Error(),
-	// 	})
-	// }
+	if err != nil {
+		return c.JSON(response{
+			Status:  500,
+			Message: "Something went wrong, please try after sometime!",
+			Data:    nil,
+			Error:   err.Error(),
+		})
+	}
 
 	return c.JSON(response{
 		Status:  200,
@@ -206,7 +206,7 @@ func updateBlog(c *fiber.Ctx) error {
 	if err != nil {
 		return c.JSON(response{
 			Status:  500,
-			Message: "",
+			Message: "Something went wrong, please try after sometime!",
 			Data:    nil,
 			Error:   err.Error(),
 		})
@@ -214,7 +214,7 @@ func updateBlog(c *fiber.Ctx) error {
 
 	return c.JSON(response{
 		Status:  200,
-		Message: "Blog updated with Id " + strconv.Itoa(payload.BlogId) + "provided",
+		Message: "Blog updated with Id " + strconv.Itoa(payload.BlogId) + " provided",
 		Data:    payload.Blog,
 		Error:   "",
 	})
